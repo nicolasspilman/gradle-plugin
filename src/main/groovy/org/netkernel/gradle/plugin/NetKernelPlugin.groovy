@@ -339,11 +339,21 @@ class NetKernelPlugin implements Plugin<Project> {
                     println ("<======")
                 }
                 println("MODULE IS BUILT")
-
             }
         }
+
         project.tasks.moduleResources.dependsOn "module"
-        
+
+        project.tasks.processResources << {
+            // Setting module version from the project version
+            def moduleXmlFile = "${project.buildDir}/resources/main/module.xml"
+
+            logger.debug "Updating ${moduleXmlFile} to ${project.version}"
+            ModuleHelper builtModule = new ModuleHelper("${moduleXmlFile}")
+            builtModule.setVersion(project.version)
+            builtModule.save()
+        }
+
         // TODO: Rethink this for multi modules
 
         project.tasks.jar.configure {
